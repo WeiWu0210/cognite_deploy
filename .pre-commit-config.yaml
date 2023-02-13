@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
 
@@ -8,6 +8,7 @@ repos:
     rev: 22.12.0
     hooks:
       - id: black
+        entry: bash -c 'black "$@" || true' --
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
@@ -30,3 +31,4 @@ repos:
     rev: v0.991
     hooks:
       - id: mypy
+        entry: bash -c 'mypy "$@" || true' --

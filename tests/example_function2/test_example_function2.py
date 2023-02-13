@@ -1,6 +1,6 @@
 import pytest
 
-from example_function2.handler import handle
+from example_function2_test.handler import handle
 
 
 @pytest.mark.unit
