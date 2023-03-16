@@ -10,8 +10,7 @@ jobs:
     with:
       deploy_folders: >-
         (
-        "example_function1_test"
-        "example_function2_test"
+        "compressor_ts_forecast"
         )
       trigger_deploy_all_folders: >-
         (
