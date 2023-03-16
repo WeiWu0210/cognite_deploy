@@ -8,7 +8,7 @@ from prophet import Prophet
 
 
 def create_and_save_time_series_data(client, data, ts_external_id, data_set_id):
-    """Function to create the time series and save the data"""
+    """Function to create the time series and save the TS data"""
     cdf_ts = client.time_series.retrieve(external_id=ts_external_id)
     if cdf_ts is None:
         ts = TimeSeries(external_id=ts_external_id, name=ts_external_id, data_set_id=data_set_id)
