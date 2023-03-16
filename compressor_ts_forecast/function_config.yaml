@@ -1,14 +1,14 @@
 common_folder: common
-description: "This function does an important job. Yes :doge:"
-owner: The Wicked Froge🐸 Team
-cpu: 0.15
-memory: 0.25
+description: "Function for compressor timeseries forecast"
+owner: w.e.wu@accenture.com
+cpu: 1.0
+memory: 1.5
 cdf_project: "accenture-tiger-training"
 cdf_cluster: "api"
-data_set_id: 1686761944416218
-env_vars:
-  MY_ENV_VAR: "1337"
-  which_env: "p-p-p-production"
+data_set_id: 5015282361972951 #ds name: cognite_replicator_test
+#env_vars:
+#  MY_ENV_VAR: "1337"
+#  which_env: "p-p-p-production"
 # Alternatively, env_vars: {"MY_ENV_VAR": "1337", "which_env": "p-p-p-production"}
 # Parameters that are usually not needed to pass (they have good default values):
 # function_file: handler.py  # Use case: Just don't...
