@@ -37,6 +37,18 @@ def ts_forecast(df, cps=0.02):
     return fcst_df
 
 
+def save_data(client, fcst_df, df, ts_exid, data_set_id):
+    create_and_save_time_series_data(client, df[["Measurement"]], f"{ts_exid}_Actual", data_set_id=data_set_id)
+    create_and_save_time_series_data(client, fcst_df[["yhat"]], f"{ts_exid}_Forecast_Trend", data_set_id=data_set_id)
+    create_and_save_time_series_data(
+        client, fcst_df[["yhat_lower"]], f"{ts_exid}_Forecast_Lower", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(
+        client, fcst_df[["yhat_upper"]], f"{ts_exid}_Forecast_Upper", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(client, fcst_df[["cap"]], f"{ts_exid}_Forecast_Cap", data_set_id=data_set_id)
+
+
 def handle(client, data=None, secrets=None, function_call_info=None):
     """Handler Function to be Run/Deployed for heat exchangers
     Args:
@@ -52,7 +64,9 @@ def handle(client, data=None, secrets=None, function_call_info=None):
         "USA.ST.KONG.VIRT.005-HZZ-3120A_Monitor_ActualColdSideDP-Numerical",
         "USA.ST.KONG.VIRT.005-HZZ-3120A_Monitor_ActualHotSideDP-Numerical",
         "USA.ST.KONG.VIRT.005-HZZ-3120A_Monitor_ActualHTC",
-        "USA.ST.PSS.075_PZI_3120A_29.PV",
+        "USA.TB.KONG.VIRT.HZZ-4110_Monitor_ActualColdSideDP-Numerical",
+        "USA.TB.KONG.VIRT.HZZ-4110_Monitor_ActualHotSideDP-Numerical",
+        "USA.TB.KONG.VIRT.HZZ-4110_Monitor_ActualHTC",
     ]
 
     data_set_id = 6870218523598358  # client.data_sets.retrieve(external_id="cognite_replicator_test").id
@@ -81,18 +95,6 @@ def handle(client, data=None, secrets=None, function_call_info=None):
         # Save the Results as time series
         df.set_index(["index"], inplace=True)
         df.fillna(method="ffill", inplace=True)
-        create_and_save_time_series_data(client, df[["Measurement"]], f"{ts_exid}_Actual", data_set_id=data_set_id)
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat"]], f"{ts_exid}_Forecast_Trend", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat_lower"]], f"{ts_exid}_Forecast_Lower", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat_upper"]], f"{ts_exid}_Forecast_Upper", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(client, fcst_df[["cap"]], f"{ts_exid}_Forecast_Cap", data_set_id=data_set_id)
-        # Return the result as json
-        # result = fcst_df[["yhat"]].to_json()
+        save_data(client, fcst_df, df, ts_exid, data_set_id)
     print("processing is done")
     return heatexchanger_ts_extid_list

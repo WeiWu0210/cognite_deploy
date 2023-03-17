@@ -37,6 +37,18 @@ def ts_forecast(df, cps=0.02):
     return fcst_df
 
 
+def save_data(client, fcst_df, df, ts_exid, data_set_id):
+    create_and_save_time_series_data(client, df[["Measurement"]], f"{ts_exid}_Actual", data_set_id=data_set_id)
+    create_and_save_time_series_data(client, fcst_df[["yhat"]], f"{ts_exid}_Forecast_Trend", data_set_id=data_set_id)
+    create_and_save_time_series_data(
+        client, fcst_df[["yhat_lower"]], f"{ts_exid}_Forecast_Lower", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(
+        client, fcst_df[["yhat_upper"]], f"{ts_exid}_Forecast_Upper", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(client, fcst_df[["cap"]], f"{ts_exid}_Forecast_Cap", data_set_id=data_set_id)
+
+
 def handle(client, data=None, secrets=None, function_call_info=None):
     """Handler Function to be Run/Deployed for compressor
     Args:
@@ -51,7 +63,8 @@ def handle(client, data=None, secrets=None, function_call_info=None):
     compressor_ts_extid_list = [
         "USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_ActualPolytropicEfficiency-Numerical",
         "USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_ActualPolytropicHead",
-        "USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_EfficiencyDeviation",
+        "USA.TB.KONG.VIRT.CBA-5040_Monitor_ActualPolytropicEfficiency",
+        "USA.TB.KONG.VIRT.CBA-5040_Monitor_ActualPolytropicHead",
     ]
 
     data_set_id = 6870218523598358  # client.data_sets.retrieve(external_id="cognite_replicator_test").id
@@ -76,22 +89,9 @@ def handle(client, data=None, secrets=None, function_call_info=None):
         df.reset_index(inplace=True)
         # Forecast TS
         fcst_df = ts_forecast(df)
-
         # Save the Results as time series
         df.set_index(["index"], inplace=True)
         df.fillna(method="ffill", inplace=True)
-        create_and_save_time_series_data(client, df[["Measurement"]], f"{ts_exid}_Actual", data_set_id=data_set_id)
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat"]], f"{ts_exid}_Forecast_Trend", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat_lower"]], f"{ts_exid}_Forecast_Lower", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat_upper"]], f"{ts_exid}_Forecast_Upper", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(client, fcst_df[["cap"]], f"{ts_exid}_Forecast_Cap", data_set_id=data_set_id)
-        # Return the result as json
-        # result = fcst_df[["yhat"]].to_json()
+        save_data(client, fcst_df, df, ts_exid, data_set_id)
     print("processing is done")
     return compressor_ts_extid_list
