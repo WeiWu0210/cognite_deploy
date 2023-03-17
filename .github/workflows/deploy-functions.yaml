@@ -11,6 +11,7 @@ jobs:
       deploy_folders: >-
         (
         "compressor_ts_forecast"
+        "heat_exchanger_ts_forecast"
         )
       trigger_deploy_all_folders: >-
         (
