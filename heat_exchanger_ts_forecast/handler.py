@@ -38,7 +38,7 @@ def ts_forecast(df, cps=0.02):
 
 
 def handle(client, data=None, secrets=None, function_call_info=None):
-    """Handler Function to be Run/Deployed for heat exchanger
+    """Handler Function to be Run/Deployed for heat exchangers
     Args:
         client : Cognite Client (not needed, it's availble to it, when deployed)
         data : data needed by function
