@@ -38,7 +38,7 @@ def ts_forecast(df, cps=0.02):
 
 
 def handle(client, data=None, secrets=None, function_call_info=None):
-    """Handler Function to be Run/Deployed
+    """Handler Function to be Run/Deployed for heat exchanger
     Args:
         client : Cognite Client (not needed, it's availble to it, when deployed)
         data : data needed by function
@@ -48,10 +48,11 @@ def handle(client, data=None, secrets=None, function_call_info=None):
     Returns:
         response : response or result from the function
     """
-    compressor_ts_extid_list = [
-        "USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_ActualPolytropicEfficiency-Numerical",
-        "USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_ActualPolytropicHead",
-        "USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_EfficiencyDeviation",
+    heatexchanger_ts_extid_list = [
+        "USA.ST.KONG.VIRT.005-HZZ-3120A_Monitor_ActualColdSideDP-Numerical",
+        "USA.ST.KONG.VIRT.005-HZZ-3120A_Monitor_ActualHotSideDP-Numerical",
+        "USA.ST.KONG.VIRT.005-HZZ-3120A_Monitor_ActualHTC",
+        "USA.ST.PSS.075_PZI_3120A_29.PV",
     ]
 
     data_set_id = 6870218523598358  # client.data_sets.retrieve(external_id="cognite_replicator_test").id
@@ -59,7 +60,7 @@ def handle(client, data=None, secrets=None, function_call_info=None):
     # ts_exids = ["USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_ActualPolytropicEfficiency"]
     start_date = datetime.datetime(2022, 6, 2)
     end_date = start_date + timedelta(days=45)
-    for ts_exid in compressor_ts_extid_list:
+    for ts_exid in heatexchanger_ts_extid_list:
         print("Processing {}".format(ts_exid))
         df = client.datapoints.retrieve_dataframe(
             external_id=[ts_exid],
@@ -94,4 +95,4 @@ def handle(client, data=None, secrets=None, function_call_info=None):
         # Return the result as json
         # result = fcst_df[["yhat"]].to_json()
     print("processing is done")
-    return compressor_ts_extid_list
+    return heatexchanger_ts_extid_list
