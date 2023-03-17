@@ -12,6 +12,7 @@ jobs:
         (
         "compressor_ts_forecast"
         "heat_exchanger_ts_forecast"
+        "pump_ts_forecast"
         )
       trigger_deploy_all_folders: >-
         (

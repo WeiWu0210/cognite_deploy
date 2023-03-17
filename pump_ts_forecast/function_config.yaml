@@ -1,5 +1,5 @@
 common_folder: common
-description: "Function for heat exchanger timeseries forecast"
+description: "Function for pump timeseries forecast"
 owner: w.e.wu@accenture.com
 cpu: 1.0
 memory: 1.5
