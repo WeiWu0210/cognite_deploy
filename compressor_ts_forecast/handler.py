@@ -79,6 +79,7 @@ def handle(client, data=None, secrets=None, function_call_info=None):
 
         # Save the Results as time series
         df.set_index(["index"], inplace=True)
+        df.fillna(method="ffill", inplace=True)
         create_and_save_time_series_data(client, df[["Measurement"]], f"{ts_exid}_Actual", data_set_id=data_set_id)
         create_and_save_time_series_data(
             client, fcst_df[["yhat"]], f"{ts_exid}_Forecast_Trend", data_set_id=data_set_id
