@@ -84,7 +84,6 @@ def handle(client, data=None, secrets=None, function_call_info=None):
             end=end_date,
             include_aggregate_name=False,
         )
-        df.fillna(method="ffill", inplace=True)
         df.columns = column_names
         # remove outlier. TO DO optimization
         df["Measurement"] = df["Measurement"].apply(lambda x: None if x == 0 else x)
@@ -95,6 +94,7 @@ def handle(client, data=None, secrets=None, function_call_info=None):
         # Save the Results as time series
         df.set_index(["index"], inplace=True)
         df.fillna(method="ffill", inplace=True)
+        df.fillna(method="bfill", inplace=True)
         save_data(client, fcst_df, df, ts_exid, data_set_id)
     print("processing is done")
     return heatexchanger_ts_extid_list
