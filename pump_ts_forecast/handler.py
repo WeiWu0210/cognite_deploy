@@ -13,9 +13,9 @@ def create_and_save_time_series_data(client, data, ts_external_id, data_set_id):
     if cdf_ts is None:
         ts = TimeSeries(external_id=ts_external_id, name=ts_external_id, data_set_id=data_set_id)
         client.time_series.create(ts)
-        print("Created time series")
+        print(f"Created time series: {ts_external_id}")
     else:
-        print("Existing Time Series")
+        print(f"Existing Time Series: {ts_external_id}")
     data.columns = ["values"]
     dps = []
     for index, r in data.iterrows():
@@ -31,7 +31,7 @@ def ts_forecast(df, cps=0.02):
     m = Prophet(changepoint_prior_scale=cps)
     m.fit(df2)
     future = m.make_future_dataframe(periods=24 * 7, freq="H")
-    future["cap"] = 1.1 * df2["y"].median()  #
+    future["cap"] = 1.1 * df2["y"].median()
     fcst = m.predict(future)
     fcst_df = fcst[["ds", "yhat", "cap", "yhat_lower", "yhat_upper"]].set_index("ds")
     return fcst_df
