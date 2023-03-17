@@ -31,7 +31,7 @@ def ts_forecast(df, cps=0.02):
     m = Prophet(changepoint_prior_scale=cps)
     m.fit(df2)
     future = m.make_future_dataframe(periods=24 * 7, freq="H")
-    future["cap"] = 1.1 * df2["y"].mean()  #
+    future["cap"] = 1.1 * df2["y"].median()  #
     fcst = m.predict(future)
     fcst_df = fcst[["ds", "yhat", "cap", "yhat_lower", "yhat_upper"]].set_index("ds")
     return fcst_df
