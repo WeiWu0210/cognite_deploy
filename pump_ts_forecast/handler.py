@@ -37,6 +37,18 @@ def ts_forecast(df, cps=0.02):
     return fcst_df
 
 
+def save_data(client, fcst_df, df, ts_exid, data_set_id):
+    create_and_save_time_series_data(client, df[["Measurement"]], f"{ts_exid}_Actual", data_set_id=data_set_id)
+    create_and_save_time_series_data(client, fcst_df[["yhat"]], f"{ts_exid}_Forecast_Trend", data_set_id=data_set_id)
+    create_and_save_time_series_data(
+        client, fcst_df[["yhat_lower"]], f"{ts_exid}_Forecast_Lower", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(
+        client, fcst_df[["yhat_upper"]], f"{ts_exid}_Forecast_Upper", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(client, fcst_df[["cap"]], f"{ts_exid}_Forecast_Cap", data_set_id=data_set_id)
+
+
 def handle(client, data=None, secrets=None, function_call_info=None):
     """Handler Function to be Run/Deployed for heat exchangers
     Args:
@@ -50,8 +62,7 @@ def handle(client, data=None, secrets=None, function_call_info=None):
     """
     pump_ts_extid_list = [
         "USA.ST.KONG.VIRT.012-PBA-6270A_Monitor_ActualHead-Numerical",
-        "USA.ST.TLP.FLOATCELL.PUMP.A.STATE.RAW",
-        "USA.ST.PSS.012_PI_6270A_08.PV",
+        "USA.TB.KONG.VIRT.PBE-6420_Monitor_ActualHead",
     ]
 
     data_set_id = 6870218523598358  # client.data_sets.retrieve(external_id="cognite_replicator_test").id
@@ -80,18 +91,6 @@ def handle(client, data=None, secrets=None, function_call_info=None):
         # Save the Results as time series
         df.set_index(["index"], inplace=True)
         df.fillna(method="ffill", inplace=True)
-        create_and_save_time_series_data(client, df[["Measurement"]], f"{ts_exid}_Actual", data_set_id=data_set_id)
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat"]], f"{ts_exid}_Forecast_Trend", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat_lower"]], f"{ts_exid}_Forecast_Lower", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(
-            client, fcst_df[["yhat_upper"]], f"{ts_exid}_Forecast_Upper", data_set_id=data_set_id
-        )
-        create_and_save_time_series_data(client, fcst_df[["cap"]], f"{ts_exid}_Forecast_Cap", data_set_id=data_set_id)
-        # Return the result as json
-        # result = fcst_df[["yhat"]].to_json()
+        save_data(client, fcst_df, df, ts_exid, data_set_id)
     print("processing is done")
     return pump_ts_extid_list
