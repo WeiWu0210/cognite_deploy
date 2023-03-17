@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         function:
-          - example_function1
-          - example_function2
+          - compressor_ts_forecast
+          - heat_exchanger_ts_forecast
     steps:
       - uses: actions/checkout@v2
 
