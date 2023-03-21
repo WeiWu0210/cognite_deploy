@@ -140,5 +140,9 @@ def handle(client, data=None, secrets=None, function_call_info=None):
             error = row["Error"]
             absolute_error_percentage = round(abs(error / gt) * 100, 2)
             df_merged.at[idx, "Absolute Error Percentage"] = absolute_error_percentage
+        df_merged.fillna(method="ffill", inplace=True)
+        df_merged.fillna(method="bfill", inplace=True)
+        save_test_data(client, df_merged, ts_exid, data_set_id)
+
     print("processing is done")
     return compressor_ts_extid_list
