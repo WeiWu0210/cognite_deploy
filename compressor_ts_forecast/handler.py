@@ -3,6 +3,8 @@ import datetime
 
 from datetime import timedelta
 
+import pandas as pd
+
 from cognite.client.data_classes import TimeSeries
 from prophet import Prophet
 
@@ -49,6 +51,24 @@ def save_data(client, fcst_df, df, ts_exid, data_set_id):
     create_and_save_time_series_data(client, fcst_df[["cap"]], f"{ts_exid}_Forecast_Cap", data_set_id=data_set_id)
 
 
+def save_test_data(client, df_for_test, ts_exid, data_set_id):
+    create_and_save_time_series_data(
+        client, df_for_test[["Ground_Truth"]], f"{ts_exid}_Actual_for_Test", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(
+        client, df_for_test[["Forecast"]], f"{ts_exid}_Forecast_Trend_for_Test", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(
+        client, df_for_test[["Error"]], f"{ts_exid}_Forecast_Error_for_Test", data_set_id=data_set_id
+    )
+    create_and_save_time_series_data(
+        client,
+        df_for_test[["Absolute Error Percentage"]],
+        f"{ts_exid}_Forecast__Absolute_Error_Percentage_for_Test",
+        data_set_id=data_set_id,
+    )
+
+
 def handle(client, data=None, secrets=None, function_call_info=None):
     """Handler Function to be Run/Deployed for compressor
     Args:
@@ -69,7 +89,6 @@ def handle(client, data=None, secrets=None, function_call_info=None):
 
     data_set_id = 6870218523598358  # client.data_sets.retrieve(external_id="cognite_replicator_test").id
     column_names = ["Measurement"]
-    # ts_exids = ["USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_ActualPolytropicEfficiency"]
     start_date = datetime.datetime(2022, 6, 2)
     end_date = start_date + timedelta(days=45)
     for ts_exid in compressor_ts_extid_list:
@@ -93,5 +112,33 @@ def handle(client, data=None, secrets=None, function_call_info=None):
         df.fillna(method="ffill", inplace=True)
         df.fillna(method="bfill", inplace=True)
         save_data(client, fcst_df, df, ts_exid, data_set_id)
+
+        # retrieve test data
+        start_date_test = end_date
+        end_date_test = start_date_test + timedelta(days=7)
+        print("Processing test data from {} to {}".format(start_date_test, end_date_test))
+        df_test = client.datapoints.retrieve_dataframe(
+            external_id=[ts_exid],
+            aggregates=["average"],
+            granularity="1h",
+            start=start_date_test,
+            end=end_date_test,
+            include_aggregate_name=False,
+        )
+        df_test.columns = column_names
+        df_predict = fcst_df[["yhat"]]
+
+        # prepare test data for  dashbaord
+        df_merged = pd.merge(df_test, df_predict, left_index=True, right_index=True)
+        df_merged.columns = ["Ground_Truth", "Forecast"]
+        df_merged["Error"] = df_merged["Forecast"] - df_merged["Ground_Truth"]
+        df_merged["Absolute Error Percentage"] = 0
+        for idx, row in df_merged.iterrows():
+            gt = row["Ground_Truth"]
+            if gt == 0:
+                gt = 0.001
+            error = row["Error"]
+            absolute_error_percentage = round(abs(error / gt) * 100, 2)
+            df_merged.at[idx, "Absolute Error Percentage"] = absolute_error_percentage
     print("processing is done")
     return compressor_ts_extid_list
