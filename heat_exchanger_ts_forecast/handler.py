@@ -93,7 +93,7 @@ def handle(client, data=None, secrets=None, function_call_info=None):
     column_names = ["Measurement"]
     # ts_exids = ["USA.ST.KONG.VIRT.005-CAE-5040A_Monitor_ActualPolytropicEfficiency"]
     start_date = datetime.datetime(2022, 6, 2)
-    end_date = start_date + timedelta(days=45)
+    end_date = start_date + timedelta(days=30)
     for ts_exid in heatexchanger_ts_extid_list:
         print("Processing {}".format(ts_exid))
         df = client.datapoints.retrieve_dataframe(
